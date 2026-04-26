@@ -3,24 +3,43 @@
    ===================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
+  if (window.__PTG_INIT__) {
+    console.warn('PTG: init skipped (already initialized)');
+    return;
+  }
+  window.__PTG_INIT__ = true;
+  console.info('PTG: init start');
 
-  /* === CURSOR BLOB === */
-  const blob = document.createElement('div');
-  blob.id = 'cursor-blob';
-  document.body.appendChild(blob);
-  document.addEventListener('mousemove', e => {
-    blob.style.left = e.clientX + 'px';
-    blob.style.top  = e.clientY + 'px';
-  });
+  try {
+    const pauseTargets = document.querySelectorAll('.nav-logo');
+    if (pauseTargets.length && window.matchMedia && window.matchMedia('(hover: hover)').matches) {
+      pauseTargets.forEach(t => {
+        t.addEventListener('mouseenter', () => document.body.classList.add('ptg-bg-paused'));
+        t.addEventListener('mouseleave', () => document.body.classList.remove('ptg-bg-paused'));
+      });
+    }
+
+    const existingBlob = document.getElementById('cursor-blob');
+    const blob = existingBlob || document.createElement('div');
+    if (!existingBlob) {
+      blob.id = 'cursor-blob';
+      document.body.appendChild(blob);
+    }
+    document.addEventListener('mousemove', e => {
+      blob.style.left = e.clientX + 'px';
+      blob.style.top  = e.clientY + 'px';
+    }, { passive: true });
 
   /* === NAVBAR === */
   const navbar = document.getElementById('navbar');
   const hamburger = document.getElementById('hamburger');
   const navLinks  = document.getElementById('nav-links');
 
-  window.addEventListener('scroll', () => {
-    navbar.classList.toggle('scrolled', window.scrollY > 40);
-  });
+    if (navbar) {
+      window.addEventListener('scroll', () => {
+        navbar.classList.toggle('scrolled', window.scrollY > 40);
+      }, { passive: true });
+    }
 
   if (hamburger && navLinks) {
     hamburger.addEventListener('click', () => {
@@ -166,6 +185,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  console.log('%c🌍 PLANETS TECH GLOBAL', 'color:#e74c3c;font-size:20px;font-weight:bold;');
-  console.log('%cEngineering the Digital Future', 'color:#a0a0a0;font-size:12px;');
+    console.info('%cPLANETS TECH GLOBAL', 'color:#2563eb;font-size:20px;font-weight:bold;');
+    console.info('%cEngineering the Digital Future', 'color:#64748b;font-size:12px;');
+    console.info('PTG: init done');
+  } catch (err) {
+    console.error('PTG: init failed', err);
+  }
 });
